@@ -228,8 +228,13 @@ private:
         if (!wait(COMMAND_RETURN_INFO))
             return false;
         protocolReadReturnInfo(protocolInfo);
-        protocolPtr = (Protocol_t *)realloc(protocolPtr, max(protocolInfo.protocolSize, 1) * sizeof(Protocol_t));
-
+        //protocolPtr = (Protocol_t*) realloc(protocolPtr, max(protocolInfo.protocolSize, 1) * sizeof(Protocol_t));
+        // -- below --
+        int16_t sz = 1;
+        if (protocolInfo.protocolSize > 1)
+            sz = protocolInfo.protocolSize;
+        protocolPtr = (Protocol_t *)realloc(protocolPtr, sz * sizeof(Protocol_t));
+        // -- above --
         for (int i = 0; i < protocolInfo.protocolSize; i++)
         {
             if (!wait())
@@ -373,7 +378,10 @@ public:
     int available()
     {
         int result = count();
-        currentIndex = min(currentIndex, result);
+        //currentIndex = min(currentIndex, result);
+        // Fix
+        if (result < currentIndex)
+            currentIndex = result;
         return result - currentIndex;
     }
 
